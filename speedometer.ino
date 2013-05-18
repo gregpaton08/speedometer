@@ -49,7 +49,10 @@ void loop() {
   display.clearDisplay();
   display.setCursor(0, 0);
   display.setTextSize(4);
-  display.println(getSpeed());
+  String str = getSpeed();
+  if (str.length() == 1)
+    display.print(" ");
+  display.println(str);
   display.setTextSize(2);
   display.println("MPH");
   display.display();
