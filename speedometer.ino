@@ -84,27 +84,3 @@ String getSpeed() {
   
   return String((int)(obd.pidToDec(0x0D, pidRes) + 0.5));
 }
-
-void setVerticalGauge(int8_t percent) {
-  if (percent < 0)
-    percent = 0;
-  else if (percent > 100)
-    percent = 100;
-    
-  int8_t height = ((display.height() - 1) * percent) / 100;
-    
-  display.fillRect(0, display.height() - height, display.width(), height, 1);
-  display.display();
-}
-
-void setHorizontalGauge(int8_t percent) {
-  if (percent < 0)
-    percent = 0;
-  else if (percent > 100)
-    percent = 100;
-    
-  int8_t width = ((display.width() - 1) * percent) / 100;
-    
-  display.fillRect(0, 0, width, display.height(), 1);
-  display.display();
-}
