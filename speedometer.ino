@@ -1,10 +1,17 @@
-/*! \file fuelUsageMeter.ino
- *  \brief Arduino sketch for monitoring instantaneous
- *         fuel usage usind OBD and OLED display.
+/*! \file speedometer.ino
+ *  \brief Arduino sketch for monitoring speed
+ *         usind OBD and OLED display.
  *  \author Greg Paton
  *  \date 16 May 2013
  */
 // Copyright (c) GSP 2013
+
+
+// D0  - 10
+// D1  -  9
+// DC  - 11
+// RST - 13
+// CD  - 12
 
 
 #include "OBDLib.h"
@@ -42,6 +49,10 @@ void setup() {
   obd.init(); 
   
   display.clearDisplay();
+  display.setCursor(0, 0);
+  display.println("OBD");
+  display.println("connected");
+  display.display();
 }
 
 
@@ -50,40 +61,40 @@ void loop() {
   display.setCursor(0, 0);
   display.setTextSize(4);
   String str = getSpeed();
+   
   if (str.length() == 1)
     display.print(" ");
   display.println(str);
   display.setTextSize(2);
   display.println("MPH");
+  
   display.display();
 }
 
 String getSpeed() {
   uint8_t len = 0;
-  uint8_t pidResSize = 10;
+  uint8_t pidResSize = 3;
   char pidRes[pidResSize];
   
   // Query PID
   obd.sendCMD(0x01, 0x0D);
   
-  long int stime = millis();
   while (true) {
     if (Serial.find("0D"))
       break;
     if (Serial.find("UNABLE TO CONNECT")) 
-      return String("unable to connect");
-    if (millis() - stime > 200)
-      return String("timeout");
+      return String("UTC");
   }
    
-  // loop until new line character found
-  while (len < pidResSize) {
+  // Read next 2 characters
+  while (len < pidResSize - 1) {
     unsigned char c = Serial.read();
     if (c == (unsigned char)-1 || c == 32) continue;
-    if (c == '\n' || c == '\r') break;
+    if (c == '\n' || c == '\r' || c < 48) break;
     pidRes[len] = c;
     ++len;
   }
+  pidRes[pidResSize - 1] = '\0';
   
   return String((int)(obd.pidToDec(0x0D, pidRes) + 0.5));
 }
